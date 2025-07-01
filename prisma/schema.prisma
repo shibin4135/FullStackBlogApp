@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(uuid())
+  name        String
+  email       String     @unique
+  imageUrl    String?
+  clerkUserId String
+  articles    Article[]
+  comments    Comment[]
+  likes       Like[]
+  bookmarks   Bookmark[]
+}
+
+model Article {
+  id         String     @id @default(uuid())
+  title      String
+  content    String
+  coverPic   String
+  category   String
+  user       User       @relation(fields: [userid], references: [id])
+  userid     String
+  comments   Comment[]
+  likes      Like[]
+  bookmarks  Bookmark[]
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+}
+
+model Comment {
+  id         String    @id @default(uuid())
+  comment    String
+  user       User      @relation(fields: [userid], references: [id])
+  userid     String
+  article    Article   @relation(fields: [articleid], references: [id],onDelete:Cascade)
+  articleid  String
+  parentId   String?
+  parent     Comment?  @relation("CommentToReplies", fields: [parentId], references: [id])
+  replies    Comment[] @relation("CommentToReplies") 
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+model Like {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userid], references: [id])
+  userid     String
+  article    Article  @relation(fields: [articleid], references: [id],onDelete: Cascade)
+  articleid  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([userid, articleid])
+}
+
+model Bookmark {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userid], references: [id])
+  userid     String
+  article    Article  @relation(fields: [articleid], references: [id],onDelete: Cascade)
+  articleid  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([userid, articleid])
+}
