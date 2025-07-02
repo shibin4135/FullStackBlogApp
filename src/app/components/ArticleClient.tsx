@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, FileText, Loader, Loader2, User } from "lucide-react";
+import { Calendar, FileText, Loader, User } from "lucide-react";
 import React, { useState } from "react";
 import Search from "./Search";
 import {

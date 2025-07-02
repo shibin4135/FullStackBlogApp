@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import cloudinary from "@/lib/cloudinary";
-import { revalidatePath } from "next/cache";
+
 
 export const DELETE = async (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
-    const id = params.id;
+    const id =(await params).id;
     const article = await prisma.article.findUnique({
       where: {
         id,

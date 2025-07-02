@@ -1,9 +1,8 @@
-
 import React from 'react'
 import { prisma } from '../../../lib/prisma'
 import Image from 'next/image'
 import { currentUser } from '@clerk/nextjs/server'
-import { Calendar, MessageCircleMore, Share } from 'lucide-react'
+import { Calendar} from 'lucide-react'
 import { format } from 'date-fns'
 import LikeComponent from '@/app/components/LikeComponent'
 import Bookmarks from '@/app/components/Bookmark'

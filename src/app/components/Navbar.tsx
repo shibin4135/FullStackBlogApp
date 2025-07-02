@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import { SignedIn, SignedOut, SignOutButton, UserButton } from '@clerk/nextjs';
-import { Sun } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import ThemeProviderComponent from './ThemeProviderComponent';

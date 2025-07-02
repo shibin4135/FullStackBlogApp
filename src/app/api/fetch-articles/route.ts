@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 
-export const GET = async (req: NextRequest) => {
+export const GET = async () => {
   try {
     const articles = await prisma.article.findMany({
       include: {

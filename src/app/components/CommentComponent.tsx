@@ -23,17 +23,16 @@ const CommentComponent = ({ articleId }: { articleId: string }) => {
   const { user } = useUser();
   const userId = user?.id;
 
-  const fetchComments = async () => {
-    const response = await fetch("/api/fetch-comments", {
-      method: "POST",
-      body: JSON.stringify({ articleId }),
-    });
-    const data = await response.json();
-    setComments(data.comments);
-  };
-
   useEffect(() => {
-    fetchComments();
+    const fetchComments = async () => {
+      const response = await fetch("/api/fetch-comments", {
+        method: "POST",
+        body: JSON.stringify({ articleId }),
+      });
+      const data = await response.json();
+      setComments(data.comments);
+    };
+    fetchComments()
   }, [articleId]);
 
   const handlePost = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,7 +48,6 @@ const CommentComponent = ({ articleId }: { articleId: string }) => {
       });
       await res.json();
       setComment("");
-      fetchComments();
     } catch (err) {
       console.error(err);
     }

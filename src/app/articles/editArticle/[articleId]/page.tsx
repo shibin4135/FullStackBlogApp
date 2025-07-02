@@ -13,7 +13,6 @@ const JoditEditor = dynamic(() => import('jodit-react'), {
 
 const EditArticle = () => {
     const { articleId } = useParams()
-    console.log(articleId)
     const editor = useRef(null)
     const [content, setContent] = useState<string>("")
     const [title, setTitle] = useState("")
@@ -34,7 +33,7 @@ const EditArticle = () => {
             }
         }
         getSingleArticle()
-    }, [])
+    }, [articleId])
 
 
     const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +59,7 @@ const EditArticle = () => {
             });
             const result = await response.json();
             console.log(result)
-        } catch (error) {
+        } catch  {
             console.log('Something Went Wrong')
         }finally{
             setIsPending(false)

@@ -9,12 +9,14 @@ export const POST = async () => {
     const lname = data?.lastName;
     const name = `${fname} ${lname}`;
     const imageUrl = data?.imageUrl;
+    const userId = data?.id as string;
+    const email = data?.emailAddresses[0].emailAddress as string;
 
     const newUser = await prisma.user.create({
       data: {
         name,
-        email: data?.emailAddresses[0]?.emailAddress!,
-        clerkUserId: data?.id as string,
+        email,
+        clerkUserId: userId,
         imageUrl,
       },
     });

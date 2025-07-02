@@ -17,7 +17,7 @@ const Pagination = ({ setFilteredArticles }: { setFilteredArticles: React.Dispat
             setArticleCount(result.count)
         }
         fetchArticles()
-    }, [currentPage])
+    }, [currentPage,setFilteredArticles])
 
     return (
         <div className='mt-10 flex items-center gap-3 justify-center'>

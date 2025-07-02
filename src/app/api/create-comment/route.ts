@@ -32,8 +32,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({
       newcomment,
     });
-  } catch (error: any) {
-    console.log(error.message);
+  } catch {
     return NextResponse.json(
       {
         message: "Internal Server Error",

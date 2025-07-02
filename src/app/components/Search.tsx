@@ -35,7 +35,7 @@ const Search = ({ setFilteredArticles, setLoading }: Props) => {
             }
         }
         getBySearch()
-    }, [searchTerm])
+    }, [searchTerm,setFilteredArticles,setLoading])
 
     return (
         <div>
