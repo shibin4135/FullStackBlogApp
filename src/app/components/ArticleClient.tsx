@@ -78,14 +78,14 @@ const ArticleClient = ({ articles }: Props) => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-            <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
                         <FileText className="h-4 w-4" />
                         Your Content
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent mb-4">
+                    <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-4">
                         Your Articles
                     </h1>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -100,11 +100,14 @@ const ArticleClient = ({ articles }: Props) => {
 
                 <Search setFilteredArticles={setFilteredArticles} setLoading={setLoading} />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-10">
                     {filteredArticles.length === 0 ? (
-                        <p className="text-center text-muted-foreground col-span-full">
-                            No articles match your search.
-                        </p>
+                        <div className="col-span-full text-center py-12">
+                            <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                            <p className="text-lg text-muted-foreground">
+                                No articles match your search.
+                            </p>
+                        </div>
                     ) : (
                         loading ? (
                             <div className="col-span-full flex justify-center items-center min-h-[200px]">
@@ -118,30 +121,30 @@ const ArticleClient = ({ articles }: Props) => {
                                         filteredArticles.map((article, index) => (
                                             <Card
                                                 key={`${article.id}-${index}`}
-                                                className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md transition-transform duration-300 hover:-translate-y-1"
+                                                className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                                             >
-                                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
+                                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
 
-                                                <CardHeader className="relative z-10 space-y-2">
-                                                    <div className="flex justify-between items-start text-xs text-muted-foreground">
-                                                        <Badge variant="outline">Article #{index + 1}</Badge>
-                                                        <div className="flex items-center gap-1">
+                                                <CardHeader className="relative z-10 space-y-3">
+                                                    <div className="flex justify-between items-start">
+                                                        <Badge variant="outline" className="bg-muted">#{index + 1}</Badge>
+                                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                                             <Calendar className="h-3 w-3" />
                                                             {formatDate(article.created_at)}
                                                         </div>
                                                     </div>
 
-                                                    <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors duration-200 line-clamp-2">
-                                                        {article.title}
+                                                    <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors duration-200 line-clamp-2">
+                                                        <div dangerouslySetInnerHTML={{ __html: article.title }} />
                                                     </CardTitle>
 
                                                     <CardDescription className="mt-1">
-                                                        <p className="text-sm text-muted-foreground line-clamp-3">
+                                                        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                                                             {getExtractedText(article.content)}
                                                         </p>
                                                         <Link
                                                             href={`/articles/${article.id}`}
-                                                            className="mt-1 inline-block text-sm font-medium text-primary hover:underline"
+                                                            className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
                                                         >
                                                             Read more →
                                                         </Link>
@@ -156,7 +159,7 @@ const ArticleClient = ({ articles }: Props) => {
                                                                 width={40}
                                                                 height={40}
                                                                 alt={`${article.user?.name}'s profile`}
-                                                                className="rounded-full object-cover ring-2 ring-background shadow"
+                                                                className="rounded-full object-cover ring-2 ring-background shadow-sm"
                                                             />
                                                             <div>
                                                                 <p className="text-sm font-medium text-foreground">
@@ -187,7 +190,7 @@ const ArticleClient = ({ articles }: Props) => {
                                 </>)
                     )}
                 </div>
-                <div>
+                <div className="mt-8">
                     <Pagination setFilteredArticles={setFilteredArticles} />
                 </div>
             </div>

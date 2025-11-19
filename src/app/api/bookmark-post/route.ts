@@ -1,6 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma"
 
+export const GET = async (req: NextRequest) => {
+    try {
+        const { searchParams } = new URL(req.url);
+        const userId = searchParams.get("userId") as string;
+        const articleId = searchParams.get("articleId") as string;
+
+        if (!userId || !articleId) {
+            return NextResponse.json({
+                isBookmarked: false,
+            });
+        }
+
+        const user = await prisma.user.findFirst({
+            where: {
+                clerkUserId: userId,
+            },
+        });
+
+        if (!user || !user.id) {
+            return NextResponse.json({
+                isBookmarked: false,
+            });
+        }
+
+        const isAlreadyBookmarked = await prisma.bookmark.findFirst({
+            where: {
+                userid: user.id,
+                articleid: articleId,
+            },
+        });
+
+        return NextResponse.json({
+            isBookmarked: !!isAlreadyBookmarked,
+        });
+    } catch (error) {
+        console.log(error);
+        return NextResponse.json(
+            {
+                isBookmarked: false,
+            },
+            {
+                status: 500,
+            }
+        );
+    }
+};
+
 export const POST = async (req: NextRequest) => {
     try {
         const formdata = await req.formData();

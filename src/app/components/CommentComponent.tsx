@@ -2,10 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@clerk/nextjs";
-import { MessageCircleMore } from "lucide-react";
+import { MessageCircleMore, Send } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import CommentItem from "./CommetntItem";
-
+import toast from 'react-hot-toast';
 
 export interface Comment {
   id: string;
@@ -13,75 +13,135 @@ export interface Comment {
   articleId: string;
   parentId: string | null;
   userid: string;
+  user?: {
+    name: string;
+    email: string;
+    imageUrl?: string | null;
+  };
   replies?: Comment[];
+  created_at?: string;
 }
 
 const CommentComponent = ({ articleId }: { articleId: string }) => {
-  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [isCommentOpen, setIsCommentOpen] = useState(true);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useUser();
   const userId = user?.id;
 
-  useEffect(() => {
-    const fetchComments = async () => {
+  const fetchComments = async () => {
+    try {
       const response = await fetch("/api/fetch-comments", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ articleId }),
       });
       const data = await response.json();
-      setComments(data.comments);
-    };
-    fetchComments()
+      setComments(data.comments || []);
+    } catch (error) {
+      console.error("Failed to fetch comments", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchComments();
   }, [articleId]);
 
   const handlePost = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!userId) {
+      toast.error("Please sign in to comment");
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error("Comment cannot be empty");
+      return;
+    }
+
+    setIsSubmitting(true);
     const formData = new FormData();
     formData.append("userId", userId as string);
     formData.append("articleId", articleId);
     formData.append("comment", comment);
+    
     try {
       const res = await fetch("/api/create-comment", {
         method: "POST",
         body: formData,
       });
-      await res.json();
-      setComment("");
+      const result = await res.json();
+      if (res.ok) {
+        setComment("");
+        toast.success("Comment posted!");
+        // Refresh comments
+        await fetchComments();
+      } else {
+        toast.error("Failed to post comment");
+      }
     } catch (err) {
       console.error(err);
+      toast.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="mt-8">
-      <button
-        onClick={() => setIsCommentOpen((prev) => !prev)}
-        className="flex items-center gap-2 text-muted-foreground hover:text-primary text-sm font-medium transition"
-      >
-        <MessageCircleMore className="w-5 h-5" />
-        Comment
-      </button>
+    <div className="space-y-6">
+      <div className="flex items-center gap-2 mb-6">
+        <MessageCircleMore className="w-5 h-5 text-primary" />
+        <h3 className="text-xl font-bold">Comments</h3>
+        <span className="text-sm text-muted-foreground">({comments.length})</span>
+      </div>
 
-      {isCommentOpen && (
-        <div className="mt-4 space-y-6">
-          <form onSubmit={handlePost} className="flex flex-col sm:flex-row items-start gap-4">
+      {user ? (
+        <form onSubmit={handlePost} className="space-y-4">
+          <div className="flex gap-3">
             <Input
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Write your comment..."
-              className="flex-1 min-w-[250px]"
+              placeholder="Share your thoughts..."
+              className="flex-1"
+              disabled={isSubmitting}
             />
-            <Button type="submit" className="px-6">Post</Button>
-          </form>
-
-          <div className="space-y-4">
-            {comments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} articleId={articleId} />
-            ))}
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || !comment.trim()}
+              className="px-6"
+            >
+              <Send className="h-4 w-4 mr-2" />
+              {isSubmitting ? "Posting..." : "Post"}
+            </Button>
           </div>
+        </form>
+      ) : (
+        <div className="p-4 bg-muted/50 rounded-lg border border-border text-center">
+          <p className="text-sm text-muted-foreground">
+            Please sign in to leave a comment
+          </p>
         </div>
       )}
+
+      <div className="space-y-4 mt-6">
+        {comments.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <MessageCircleMore className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <p>No comments yet. Be the first to comment!</p>
+          </div>
+        ) : (
+          comments.map((comment) => (
+            <CommentItem 
+              key={comment.id} 
+              comment={comment} 
+              articleId={articleId}
+              onReplyAdded={fetchComments}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

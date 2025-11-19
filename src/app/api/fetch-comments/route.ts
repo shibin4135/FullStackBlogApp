@@ -1,38 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
+
+// Helper function to recursively fetch replies
+async function fetchReplies(parentId: string) {
+  const replies = await prisma.comment.findMany({
+    where: {
+      parentId: parentId,
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+          imageUrl: true,
+        },
+      },
+    },
+    orderBy: {
+      created_at: 'asc',
+    },
+  });
+
+  // Recursively fetch nested replies
+  const repliesWithNested = await Promise.all(
+    replies.map(async (reply) => {
+      const nestedReplies = await fetchReplies(reply.id);
+      return {
+        ...reply,
+        replies: nestedReplies,
+      };
+    })
+  );
+
+  return repliesWithNested;
+}
+
 export const POST = async (req: NextRequest) => {
-  const {articleId} = await req.json();
+  const { articleId } = await req.json();
   try {
-    const comments = await prisma.comment.findMany({
+    // Fetch only top-level comments (where parentId is null)
+    const topLevelComments = await prisma.comment.findMany({
       where: {
         articleid: articleId,
+        parentId: null,
       },
       include: {
         user: {
           select: {
             name: true,
             email: true,
-          },
-        },
-        replies: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                email: true,
-              },
-            },
+            imageUrl: true,
           },
         },
       },
+      orderBy: {
+        created_at: 'asc',
+      },
     });
-    if (!comments) {
-      return NextResponse.json({
-        message: "No comments found",
-      });
-    }
+
+    // Fetch replies for each top-level comment
+    const commentsWithReplies = await Promise.all(
+      topLevelComments.map(async (comment) => {
+        const replies = await fetchReplies(comment.id);
+        return {
+          ...comment,
+          replies,
+        };
+      })
+    );
+
     return NextResponse.json({
-      comments,
+      comments: commentsWithReplies,
     });
   } catch (error) {
     console.log(error);

@@ -7,9 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ArrowRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, Clock, User } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 
 
 interface Article {
@@ -17,6 +20,7 @@ interface Article {
   title: string;
   content: string;
   category: string;
+  created_at?: Date;
   user: {
     name: string;
     email: string;
@@ -24,6 +28,16 @@ interface Article {
   }
 }
 
+const getStripHtml = (html: string) => {
+  return html.replace(/<[^>]+>/g, "");
+};
+
+const getExtractedText = (html: string, maxLength = 150) => {
+  const plainText = getStripHtml(html);
+  return plainText.length > maxLength
+    ? plainText.slice(0, maxLength) + "..."
+    : plainText;
+};
 
 const RecentArticles = () => {
   const [articles, setArtciles] = useState<Article[]>([])
@@ -33,7 +47,7 @@ const RecentArticles = () => {
       try {
         const response = await fetch("/api/fetch-articles");
         const data = await response.json();
-        setArtciles(data.articles)
+        setArtciles(data.articles.slice(0, 6)) // Show only 6 recent articles
       } catch (error) {
         console.log('Something Went Wrong', error)
       }
@@ -41,56 +55,105 @@ const RecentArticles = () => {
     fetchRecentArticles()
   }, [])
 
+  if (articles.length === 0) {
+    return null;
+  }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900 dark:to-black">
-      <div className="max-w-7xl mx-auto px-4">
-        <h1 className="font-bold text-4xl text-center mb-12 text-gray-800 dark:text-white">
-          Recent Articles
-        </h1>
+    <section className="py-20 bg-gradient-to-b from-background to-muted/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+            Latest Content
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Recent Articles
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Discover the latest insights, stories, and ideas from our community
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {articles.map((article) => (
             <Card
               key={article.id}
-              className="group transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl rounded-xl border border-gray-200 dark:border-zinc-700"
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
-              <CardHeader>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
-                <CardTitle className="text-2xl mb-2 font-bold text-gray-800 dark:text-white group-hover:text-primary">
-                  {article.title}
-                </CardTitle>
-                  <div className='bg-green-200 w-[100px] text-black rounded-lg shadow-lg animate-bounce'>
-                  {article.category}
+              <CardHeader className="relative z-10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                    {article.category || 'General'}
+                  </Badge>
+                  {article.created_at && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {format(new Date(article.created_at), 'MMM dd')}
+                    </div>
+                  )}
                 </div>
+                
+                <CardTitle className="text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors">
+                  <div dangerouslySetInnerHTML={{ __html: article.title }} />
+                </CardTitle>
               </CardHeader>
 
-              <CardContent className="text-sm text-gray-700 dark:text-gray-300">
-                <div dangerouslySetInnerHTML={{__html:article.content}}></div>
-              </CardContent>
-
-              <div className="p-4 pt-0 flex justify-center items-center">
-                <Button className="group-hover:bg-gradient-to-r from-purple-500 to-blue-500 transition-colors">
-                  View Details <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className='flex flex-col items-center justify-center gap-2'>
-                <Image
-                  src={article?.user?.imageUrl || '/default-avatar.png'}
-                  alt={article?.user?.name || 'avatar'}
-                  height={30}
-                  width={30}
-                  className='rounded-full'
-                />
-                <p className='text-gray-500'>
-                  Author: {article?.user?.name || 'Unknown'}
+              <CardContent className="relative z-10 space-y-4">
+                <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                  {getExtractedText(article.content)}
                 </p>
-              </div>
 
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={article?.user?.imageUrl || '/default-avatar.png'}
+                      alt={article?.user?.name || 'avatar'}
+                      height={32}
+                      width={32}
+                      className='rounded-full object-cover ring-2 ring-background'
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {article?.user?.name || 'Unknown'}
+                      </p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <User className="h-3 w-3" />
+                        Author
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Link href={`/articles/${article.id}`}>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all"
+                  >
+                    Read More
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </CardContent>
             </Card>
           ))}
         </div>
+
+        {articles.length >= 6 && (
+          <div className="text-center mt-12">
+            <Link href="/articles">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="rounded-full px-8"
+              >
+                View All Articles
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,7 +1,8 @@
 "use client"
 import { useUser } from '@clerk/nextjs'
 import { Heart } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 
 interface Props {
     articleId: string
@@ -14,9 +15,34 @@ const LikeComponent = ({ articleId, likes }: Props) => {
 
     const [isliked, setIsLiked] = useState<boolean>(false)
     const [likeCount, setLikeCount] = useState(likes)
+    const [isLoading, setIsLoading] = useState(true)
+
+    // Fetch initial like state
+    useEffect(() => {
+        const fetchLikeState = async () => {
+            if (!userId) {
+                setIsLoading(false)
+                return
+            }
+            
+            try {
+                const response = await fetch(`/api/like-post?userId=${userId}&articleId=${articleId}`)
+                const result = await response.json()
+                setIsLiked(result.isLiked || false)
+            } catch (error) {
+                console.log('Error fetching like state:', error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchLikeState()
+    }, [userId, articleId])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        if (!userId) return;
+        
         const formdata = new FormData();
         formdata.append("articleId", articleId)
         formdata.append("userId", userId as string)
@@ -26,28 +52,37 @@ const LikeComponent = ({ articleId, likes }: Props) => {
                 body: formdata
             })
             const result = await response.json();
-            setIsLiked(result.liked)
-            setLikeCount((prev) => !result.liked ? prev + 1 : prev - 1)
+            // The API returns liked: true when removed, liked: false when added
+            // So we need to toggle the state
+            setIsLiked(!isliked)
+            setLikeCount((prev) => isliked ? prev - 1 : prev + 1)
         } catch (error) {
             console.log('Something Went Wrong', error)
         }
     }
 
     return (
-        <div className="flex items-center space-x-2">
-            <form onSubmit={handleSubmit}>
-                <button
-                    type="submit"
-                    className="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 hover:bg-red-100 transition-all duration-200"
-                >
-                    <Heart
-                        className={`w-5 h-5 transition-all duration-200 ${! isliked && likeCount >= 1 ? "fill-red-500 text-red-500" : "fill-none text-gray-500"
-                            }`}
-                    />
-                    <span className="text-sm font-medium text-gray-700">{likeCount}</span>
-                </button>
-            </form>
-        </div>
+        <form onSubmit={handleSubmit} className="inline-block">
+            <Button
+                type="submit"
+                variant="outline"
+                size="sm"
+                className={`flex items-center gap-2 transition-all duration-200 ${
+                    isliked 
+                        ? "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900" 
+                        : "hover:bg-muted"
+                }`}
+            >
+                <Heart
+                    className={`h-4 w-4 transition-all duration-200 ${
+                        isliked 
+                            ? "fill-red-500 text-red-500 animate-pulse" 
+                            : "fill-none"
+                    }`}
+                />
+                <span className="text-sm font-medium">{likeCount}</span>
+            </Button>
+        </form>
     )
 }
 
