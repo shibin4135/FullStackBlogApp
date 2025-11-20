@@ -59,7 +59,7 @@ const Bookmarks = async () => {
                         Your Bookmarks
                     </h1>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Articles you've saved for later reading
+                        Articles you&apos;ve saved for later reading
                     </p>
                     {bookmarks.length > 0 && (
                         <Badge variant="secondary" className="mt-4">

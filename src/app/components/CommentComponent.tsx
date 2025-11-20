@@ -23,7 +23,6 @@ export interface Comment {
 }
 
 const CommentComponent = ({ articleId }: { articleId: string }) => {
-  const [isCommentOpen, setIsCommentOpen] = useState(true);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);

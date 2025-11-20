@@ -34,7 +34,7 @@ const SingleArticlePage = async ({ params }: { params: Promise<{ id: string }> }
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-20">
           <h1 className="text-3xl font-bold mb-4">Article not found</h1>
-          <p className="text-muted-foreground">The article you're looking for doesn't exist.</p>
+          <p className="text-muted-foreground">The article you&apos;re looking for doesn&apos;t exist.</p>
         </div>
       </div>
     )
