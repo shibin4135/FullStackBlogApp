@@ -39,7 +39,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
+            <ClerkProvider>
               <Toaster />
               <Navbar />
               <CommandPalette />
