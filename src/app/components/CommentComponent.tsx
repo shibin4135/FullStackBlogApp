@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@clerk/nextjs";
 import { MessageCircleMore, Send } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import CommentItem from "./CommetntItem";
 import toast from 'react-hot-toast';
 
@@ -30,7 +30,7 @@ const CommentComponent = ({ articleId }: { articleId: string }) => {
   const { user } = useUser();
   const userId = user?.id;
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const response = await fetch("/api/fetch-comments", {
         method: "POST",
@@ -44,11 +44,11 @@ const CommentComponent = ({ articleId }: { articleId: string }) => {
     } catch (error) {
       console.error("Failed to fetch comments", error);
     }
-  };
+  }, [articleId]);
 
   useEffect(() => {
     fetchComments();
-  }, [articleId]);
+  }, [fetchComments]);
 
   const handlePost = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,7 +72,7 @@ const CommentComponent = ({ articleId }: { articleId: string }) => {
         method: "POST",
         body: formData,
       });
-      const result = await res.json();
+      await res.json();
       if (res.ok) {
         setComment("");
         toast.success("Comment posted!");

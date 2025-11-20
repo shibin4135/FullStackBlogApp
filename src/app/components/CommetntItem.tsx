@@ -30,7 +30,7 @@ const CommentItem = ({ comment, articleId, onReplyAdded }: CommentItemProps) => 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ commentId: id, replyText, articleId }),
       });
-      const result = await response.json();
+      await response.json();
       if (response.ok) {
         setReplyText("");
         setIsReplyOpen(false);
