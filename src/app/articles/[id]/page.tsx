@@ -8,7 +8,48 @@ import LikeComponent from '@/app/components/LikeComponent'
 import Bookmarks from '@/app/components/Bookmark'
 import ShareComponent from '@/app/components/ShareComponent'
 import CommentComponent from '@/app/components/CommentComponent'
+import ReadingProgress from '@/app/components/ReadingProgress'
+import RelatedArticles from '@/app/components/RelatedArticles'
+import ViewTracker from '@/app/components/ViewTracker'
+import ExportArticle from '@/app/components/ExportArticle'
 import { Badge } from '@/components/ui/badge'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const id = (await params).id
+  const article = await prisma.article.findFirst({
+    where: { id },
+    include: { user: true }
+  })
+
+  if (!article) {
+    return {
+      title: 'Article Not Found - BlogNest',
+    }
+  }
+
+  const plainText = article.content.replace(/<[^>]*>/g, '').slice(0, 160)
+  const imageUrl = article.coverPic || article.user.imageUrl || ''
+
+  return {
+    title: `${article.title.replace(/<[^>]*>/g, '')} - BlogNest`,
+    description: plainText,
+    openGraph: {
+      title: article.title.replace(/<[^>]*>/g, ''),
+      description: plainText,
+      images: [imageUrl],
+      type: 'article',
+      authors: [article.user.name],
+      publishedTime: article.created_at.toISOString(),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title.replace(/<[^>]*>/g, ''),
+      description: plainText,
+      images: [imageUrl],
+    },
+  }
+}
 
 const SingleArticlePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const session = await currentUser()
@@ -42,6 +83,7 @@ const SingleArticlePage = async ({ params }: { params: Promise<{ id: string }> }
 
   return (
     <article className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      <ReadingProgress />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header Section */}
         <header className="mb-12 animate-fade-in">
@@ -116,14 +158,30 @@ const SingleArticlePage = async ({ params }: { params: Promise<{ id: string }> }
             <LikeComponent articleId={article.id} likes={article._count.likes} />
             <Bookmarks articleId={article.id} bookmarks={article._count.bookmarks} />
             <ShareComponent />
+            <ExportArticle 
+              title={article.title}
+              content={article.content}
+              author={article.user.name}
+              date={format(new Date(article.created_at), 'MMMM dd, yyyy')}
+            />
           </div>
         </div>
+
+        {/* Related Articles */}
+        {(article.category || (article.tags && article.tags.length > 0)) && (
+          <RelatedArticles 
+            articleId={article.id} 
+            category={article.category}
+            tags={(article.tags as string[]) || []}
+          />
+        )}
 
         {/* Comments Section */}
         <div className="bg-card/50 backdrop-blur-sm rounded-2xl border border-border p-6 sm:p-8">
           <CommentComponent articleId={article.id} />
         </div>
       </div>
+      <ViewTracker articleId={article.id} />
     </article>
   )
 }

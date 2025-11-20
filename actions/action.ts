@@ -43,6 +43,17 @@ export const createArticle = async (
   const content = formData.get("content") as string;
   const category = formData.get("category") as string;
   const imageurl = formData.get("file") as File;
+  const tagsJson = formData.get("tags") as string;
+  const isDraftStr = formData.get("isDraft") as string;
+  const isDraft = isDraftStr === "true";
+  
+  let tags: string[] = [];
+  try {
+    tags = tagsJson ? JSON.parse(tagsJson) : [];
+  } catch {
+    tags = [];
+  }
+  
   const data = await currentUser();
   const imageBuffer = await imageurl.arrayBuffer();
   const nodeBuffer = Buffer.from(imageBuffer);
@@ -83,15 +94,62 @@ export const createArticle = async (
     },
   });
 
-  await prisma.article.create({
-    data: {
-      title,
-      content,
-      category,
-      coverPic: uploadResponse?.secure_url,
-      userid: prismaUser?.id as string,
-    },
-  });
+  if (!prismaUser) {
+    return {
+      success: false,
+      errors: {
+        title: ["User not found. Please sign in again."],
+      },
+    };
+  }
+
+  // Build article data - try with new fields first, fallback if they don't exist
+  const baseData = {
+    title,
+    content,
+    category,
+    coverPic: uploadResponse?.secure_url,
+    userid: prismaUser.id,
+  };
+
+  try {
+    // Try to create with tags and isDraft (after migration)
+    await prisma.article.create({
+      data: {
+        ...baseData,
+        tags: tags.slice(0, 10),
+        isDraft,
+      } as any, // Use 'as any' to bypass TypeScript check for backward compatibility
+    });
+  } catch (error: any) {
+    // If error is about unknown fields (tags or isDraft), retry without them
+    if (error?.message?.includes('Unknown argument') && 
+        (error?.message?.includes('tags') || error?.message?.includes('isDraft'))) {
+      // Fallback: create without tags and isDraft (before migration)
+      try {
+        await prisma.article.create({
+          data: baseData,
+        });
+      } catch (fallbackError: any) {
+        console.error("Error creating article:", fallbackError);
+        return {
+          success: false,
+          errors: {
+            title: ["Failed to create article. Please try again."],
+          },
+        };
+      }
+    } else {
+      // Handle other database errors
+      console.error("Error creating article:", error);
+      return {
+        success: false,
+        errors: {
+          title: ["Failed to create article. Please try again."],
+        },
+      };
+    }
+  }
 
   return {
     success: true,

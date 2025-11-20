@@ -5,7 +5,7 @@ import { SignedIn, SignedOut, SignOutButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import ThemeProviderComponent from './ThemeProviderComponent';
-import { Menu, X, PenSquare } from 'lucide-react';
+import { Menu, X, PenSquare, BarChart3, Keyboard } from 'lucide-react';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -50,12 +50,38 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
+              <Link 
+                href="/analytics" 
+                className="text-muted-foreground hover:text-foreground transition-colors relative group"
+              >
+                Analytics
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            </li>
+            <li>
               <ThemeProviderComponent/>
             </li>
           </SignedIn>
         </ul>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <SignedIn>
+            <button
+              onClick={() => {
+                if ((window as any).openCommandPalette) {
+                  (window as any).openCommandPalette();
+                }
+              }}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/50 bg-background/50 hover:bg-muted/50 transition-colors text-xs text-muted-foreground hover:text-foreground"
+              title="Open command palette (⌘K)"
+            >
+              <Keyboard className="h-3.5 w-3.5" />
+              <kbd className="hidden md:inline-flex items-center gap-1">
+                <span className="text-[10px]">⌘</span>
+                <span>K</span>
+              </kbd>
+            </button>
+          </SignedIn>
           <SignedIn>
             <Link href="/create-article">
               <Button className="hidden sm:flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all">
@@ -136,6 +162,13 @@ const Navbar = () => {
               className="block py-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               Bookmarks
+            </Link>
+            <Link 
+              href="/analytics" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Analytics
             </Link>
             <div className="pt-2 border-t border-border">
               <ThemeProviderComponent/>

@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./components/theme-provider";
+import CommandPalette from "./components/CommandPalette";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
             <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
               <Toaster />
               <Navbar />
+              <CommandPalette />
               {children}
             </ClerkProvider>
           </ThemeProvider>

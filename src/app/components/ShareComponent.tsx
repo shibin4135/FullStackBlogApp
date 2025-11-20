@@ -16,7 +16,7 @@ const ShareComponent = () => {
                     url: window.location.href
                 })
             } catch (error) {
-                // User cancelled or error occurred
+               
             }
         } else {
             // Fallback: Copy to clipboard

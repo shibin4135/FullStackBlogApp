@@ -8,15 +8,32 @@ datasource db {
 }
 
 model User {
-  id          String     @id @default(uuid())
-  name        String
-  email       String     @unique
-  imageUrl    String?
-  clerkUserId String
-  articles    Article[]
-  comments    Comment[]
-  likes       Like[]
-  bookmarks   Bookmark[]
+  id               String            @id @default(uuid())
+  name             String
+  email            String            @unique
+  imageUrl         String?
+  clerkUserId      String
+  articles         Article[]
+  comments         Comment[]
+  likes            Like[]
+  bookmarks        Bookmark[]
+  commentReactions CommentReaction[]
+  notifications    Notification[]
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userid], references: [id], onDelete: Cascade)
+  userid     String
+  type       String // 'comment', 'like', 'reply', etc.
+  message    String
+  articleId  String?
+  commentId  String?
+  isRead     Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@index([userid])
+  @@index([isRead])
 }
 
 model Article {
@@ -25,6 +42,9 @@ model Article {
   content    String
   coverPic   String
   category   String
+  tags       String[]   @default([])
+  isDraft    Boolean    @default(false)
+  views      Int        @default(0)
   user       User       @relation(fields: [userid], references: [id])
   userid     String
   comments   Comment[]
@@ -32,27 +52,50 @@ model Article {
   bookmarks  Bookmark[]
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
+
+  @@index([userid])
+  @@index([category])
+  @@index([isDraft])
+  @@index([created_at])
 }
 
 model Comment {
-  id         String    @id @default(uuid())
+  id         String            @id @default(uuid())
   comment    String
-  user       User      @relation(fields: [userid], references: [id])
+  user       User              @relation(fields: [userid], references: [id])
   userid     String
-  article    Article   @relation(fields: [articleid], references: [id],onDelete:Cascade)
+  article    Article           @relation(fields: [articleid], references: [id], onDelete: Cascade)
   articleid  String
   parentId   String?
-  parent     Comment?  @relation("CommentToReplies", fields: [parentId], references: [id])
-  replies    Comment[] @relation("CommentToReplies") 
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  parent     Comment?          @relation("CommentToReplies", fields: [parentId], references: [id])
+  replies    Comment[]         @relation("CommentToReplies")
+  reactions  CommentReaction[]
+  isEdited   Boolean           @default(false)
+  created_at DateTime          @default(now())
+  updated_at DateTime          @updatedAt
+
+  @@index([articleid])
+  @@index([parentId])
+}
+
+model CommentReaction {
+  id         String   @id @default(uuid())
+  comment    Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId  String
+  user       User     @relation(fields: [userid], references: [id])
+  userid     String
+  type       String // 'like', 'love', 'laugh', etc.
+  created_at DateTime @default(now())
+
+  @@unique([userid, commentId])
+  @@index([commentId])
 }
 
 model Like {
   id         String   @id @default(uuid())
   user       User     @relation(fields: [userid], references: [id])
   userid     String
-  article    Article  @relation(fields: [articleid], references: [id],onDelete: Cascade)
+  article    Article  @relation(fields: [articleid], references: [id], onDelete: Cascade)
   articleid  String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -64,7 +107,7 @@ model Bookmark {
   id         String   @id @default(uuid())
   user       User     @relation(fields: [userid], references: [id])
   userid     String
-  article    Article  @relation(fields: [articleid], references: [id],onDelete: Cascade)
+  article    Article  @relation(fields: [articleid], references: [id], onDelete: Cascade)
   articleid  String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

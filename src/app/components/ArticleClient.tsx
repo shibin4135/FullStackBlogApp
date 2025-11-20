@@ -78,29 +78,31 @@ const ArticleClient = ({ articles }: Props) => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+        <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+                <div className="text-center mb-8 sm:mb-12">
+                    <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4 border border-primary/20">
                         <FileText className="h-4 w-4" />
                         Your Content
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-4">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-text mb-3 sm:mb-4">
                         Your Articles
                     </h1>
-                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                    <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                         Discover and manage all your published articles in one place.
                     </p>
                     <div className="flex justify-center mt-4">
-                        <Badge variant="secondary">
+                        <Badge variant="secondary" className="text-xs sm:text-sm">
                             {articles.length} {articles.length === 1 ? "Article" : "Articles"}
                         </Badge>
                     </div>
                 </div>
 
-                <Search setFilteredArticles={setFilteredArticles} setLoading={setLoading} />
+                <div className="mb-6 sm:mb-8">
+                    <Search setFilteredArticles={setFilteredArticles} setLoading={setLoading} />
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {filteredArticles.length === 0 ? (
                         <div className="col-span-full text-center py-12">
                             <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -121,61 +123,62 @@ const ArticleClient = ({ articles }: Props) => {
                                         filteredArticles.map((article, index) => (
                                             <Card
                                                 key={`${article.id}-${index}`}
-                                                className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                                                className="group relative overflow-hidden rounded-xl sm:rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm card-hover"
                                             >
                                                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
 
-                                                <CardHeader className="relative z-10 space-y-3">
-                                                    <div className="flex justify-between items-start">
-                                                        <Badge variant="outline" className="bg-muted">#{index + 1}</Badge>
+                                                <CardHeader className="relative z-10 space-y-3 p-4 sm:p-6">
+                                                    <div className="flex justify-between items-start gap-2">
+                                                        <Badge variant="outline" className="bg-muted/50 text-xs">#{index + 1}</Badge>
                                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                            <Calendar className="h-3 w-3" />
-                                                            {formatDate(article.created_at)}
+                                                            <Calendar className="h-3 w-3 flex-shrink-0" />
+                                                            <span className="hidden sm:inline">{formatDate(article.created_at)}</span>
+                                                            <span className="sm:hidden">{formatDate(article.created_at).split(',')[0]}</span>
                                                         </div>
                                                     </div>
 
-                                                    <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors duration-200 line-clamp-2">
+                                                    <CardTitle className="text-lg sm:text-xl font-bold group-hover:text-primary transition-colors duration-200 line-clamp-2">
                                                         <div dangerouslySetInnerHTML={{ __html: article.title }} />
                                                     </CardTitle>
 
                                                     <CardDescription className="mt-1">
-                                                        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                                                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                                                             {getExtractedText(article.content)}
                                                         </p>
                                                         <Link
                                                             href={`/articles/${article.id}`}
-                                                            className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                                                            className="mt-2 inline-block text-xs sm:text-sm font-medium text-primary hover:underline"
                                                         >
                                                             Read more →
                                                         </Link>
                                                     </CardDescription>
                                                 </CardHeader>
 
-                                                <CardContent className="relative z-10 pt-3 border-t border-border/50">
-                                                    <div className="flex items-center justify-between mt-2">
-                                                        <div className="flex items-center gap-3">
+                                                <CardContent className="relative z-10 pt-3 border-t border-border/50 p-4 sm:p-6">
+                                                    <div className="flex items-center justify-between gap-3">
+                                                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                                                             <Image
                                                                 src={article.user?.imageUrl || "/file.svg"}
-                                                                width={40}
-                                                                height={40}
+                                                                width={36}
+                                                                height={36}
                                                                 alt={`${article.user?.name}'s profile`}
-                                                                className="rounded-full object-cover ring-2 ring-background shadow-sm"
+                                                                className="rounded-full object-cover ring-2 ring-background shadow-sm flex-shrink-0"
                                                             />
-                                                            <div>
-                                                                <p className="text-sm font-medium text-foreground">
+                                                            <div className="min-w-0">
+                                                                <p className="text-xs sm:text-sm font-medium text-foreground truncate">
                                                                     {article.user?.name || "Unknown Author"}
                                                                 </p>
                                                                 <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                                                    <User className="h-3 w-3" />
+                                                                    <User className="h-3 w-3 flex-shrink-0" />
                                                                     {article.user?.clerkUserId === user?.id ? "Author" : ""}
                                                                 </div>
                                                             </div>
                                                         </div>
 
                                                         {article.user?.clerkUserId === user?.id && (
-                                                            <div className="flex gap-2">
+                                                            <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
                                                                 <Link href={`/articles/editArticle/${article.id}`}>
-                                                                    <Button size="sm" variant="outline" className="text-xs">
+                                                                    <Button size="sm" variant="outline" className="text-xs px-2 sm:px-3">
                                                                         Edit
                                                                     </Button>
                                                                 </Link>
