@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -16,7 +17,7 @@ export const GET = async (req: NextRequest) => {
     }
 
     // Build where clause for full-text search
-    const whereClause: any = {
+    const whereClause: Prisma.ArticleWhereInput = {
       isDraft: false,
       OR: [
         {
@@ -50,6 +51,11 @@ export const GET = async (req: NextRequest) => {
       whereClause.tags = {
         hasSome: tags,
       };
+    }
+
+    // If no OR conditions, remove OR
+    if (whereClause.OR && whereClause.OR.length === 0) {
+      delete whereClause.OR;
     }
 
     const articles = await prisma.article.findMany({

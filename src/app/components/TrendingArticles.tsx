@@ -4,8 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Flame, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
-import Image from "next/image";
 
 interface TrendingArticle {
   id: string;

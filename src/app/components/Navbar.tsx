@@ -5,7 +5,7 @@ import { SignedIn, SignedOut, SignOutButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import ThemeProviderComponent from './ThemeProviderComponent';
-import { Menu, X, PenSquare, BarChart3, Keyboard } from 'lucide-react';
+import { Menu, X, PenSquare, Keyboard } from 'lucide-react';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -68,8 +68,9 @@ const Navbar = () => {
           <SignedIn>
             <button
               onClick={() => {
-                if ((window as any).openCommandPalette) {
-                  (window as any).openCommandPalette();
+                const win = window as Window & { openCommandPalette?: () => void };
+                if (win.openCommandPalette) {
+                  win.openCommandPalette();
                 }
               }}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/50 bg-background/50 hover:bg-muted/50 transition-colors text-xs text-muted-foreground hover:text-foreground"

@@ -45,7 +45,7 @@ const ExportArticle = ({ title, content, author, date }: ExportArticleProps) => 
       URL.revokeObjectURL(url);
       
       toast.success("Article exported as Markdown!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to export article");
     } finally {
       setIsExporting(false);
@@ -71,7 +71,7 @@ const ExportArticle = ({ title, content, author, date }: ExportArticleProps) => 
       URL.revokeObjectURL(url);
       
       toast.success("Article exported as Text!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to export article");
     } finally {
       setIsExporting(false);

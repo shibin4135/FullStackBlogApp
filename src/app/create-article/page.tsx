@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import React, { useActionState, useEffect, useMemo, useRef, useState } from 'react';
 import { createArticle } from '../../../actions/action';
-import { Loader2, FileText, Image as ImageIcon, Tag, Save, X } from 'lucide-react';
+import { Loader2, FileText, Image as ImageIcon, Tag, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +21,6 @@ const CreateArticle = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState<string>('');
   const [isDraft, setIsDraft] = useState<boolean>(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const editor = useRef(null);
   const router = useRouter()
 
@@ -43,11 +42,11 @@ const CreateArticle = () => {
     toolbar: true,
     spellcheck: true,
     language: 'en',
-    toolbarButtonSize: 'medium' as const,
+    toolbarButtonSize: 'middle' as const,
     toolbarAdaptive: false,
     theme: 'default',
     editorBackground: 'transparent',
-    defaultMode: '1', // WYSIWYG mode
+    defaultMode: 1, // WYSIWYG mode
   }), [])
 
   useEffect(() => {
@@ -60,7 +59,6 @@ const CreateArticle = () => {
       setTags([]);
       setTagInput('');
       setIsDraft(false);
-      setImageFile(null);
       router.push("/articles");
     } else if (formdata.errors && Object.keys(formdata.errors).length > 0) {
       // Show error toast if there are validation errors
@@ -210,7 +208,7 @@ const CreateArticle = () => {
               </div>
               <Input type="hidden" name="isDraft" value={isDraft.toString()} />
               <p className="text-sm text-muted-foreground">
-                Draft articles won't be visible to other users until published
+                Draft articles won&apos;t be visible to other users until published
               </p>
             </div>
 
@@ -224,7 +222,6 @@ const CreateArticle = () => {
                 name="file"
                 id="file"
                 accept='image/*'
-                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                 className="h-12 cursor-pointer"
               />
               <p className="text-sm text-muted-foreground">

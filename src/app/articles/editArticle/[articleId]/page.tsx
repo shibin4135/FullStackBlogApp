@@ -71,7 +71,7 @@ const EditArticle = () => {
                 method: "POST",
                 body: formdata
             });
-            const result = await response.json();
+            await response.json();
             if (response.ok) {
                 toast.success("Article updated successfully!")
                 router.push(`/articles/${articleId}`)

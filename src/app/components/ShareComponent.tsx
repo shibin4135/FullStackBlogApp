@@ -15,8 +15,8 @@ const ShareComponent = () => {
                     text: "Interesting article I found",
                     url: window.location.href
                 })
-            } catch (error) {
-               
+            } catch {
+                // User cancelled or share failed
             }
         } else {
             // Fallback: Copy to clipboard
@@ -25,7 +25,7 @@ const ShareComponent = () => {
                 setCopied(true)
                 toast.success("Link copied to clipboard!")
                 setTimeout(() => setCopied(false), 2000)
-            } catch (error) {
+            } catch {
                 toast.error("Failed to copy link")
             }
         }

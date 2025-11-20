@@ -69,7 +69,7 @@ const Bookmarks = ({ bookmarks, articleId }: Props) => {
         method: "POST",
         body: formdata
       });
-      const result = await response.json();
+      await response.json();
       // The API returns alreadyBookmarked: false when removed, alreadyBookmarked: true when added
       // So we need to toggle the state
       setBookmarked(!bookmarked)

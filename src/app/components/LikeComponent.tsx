@@ -15,13 +15,11 @@ const LikeComponent = ({ articleId, likes }: Props) => {
 
     const [isliked, setIsLiked] = useState<boolean>(false)
     const [likeCount, setLikeCount] = useState(likes)
-    const [isLoading, setIsLoading] = useState(true)
 
     // Fetch initial like state
     useEffect(() => {
         const fetchLikeState = async () => {
             if (!userId) {
-                setIsLoading(false)
                 return
             }
             
@@ -31,8 +29,6 @@ const LikeComponent = ({ articleId, likes }: Props) => {
                 setIsLiked(result.isLiked || false)
             } catch (error) {
                 console.log('Error fetching like state:', error)
-            } finally {
-                setIsLoading(false)
             }
         }
 
@@ -51,7 +47,7 @@ const LikeComponent = ({ articleId, likes }: Props) => {
                 method: "POST",
                 body: formdata
             })
-            const result = await response.json();
+            await response.json();
             // The API returns liked: true when removed, liked: false when added
             // So we need to toggle the state
             setIsLiked(!isliked)

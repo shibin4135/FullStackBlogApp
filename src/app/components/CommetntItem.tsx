@@ -30,8 +30,8 @@ const CommentItem = ({ comment, articleId, onReplyAdded }: CommentItemProps) => 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ commentId: id, replyText, articleId }),
       });
-      const result = await response.json();
       if (response.ok) {
+        await response.json();
         setReplyText("");
         setIsReplyOpen(false);
         // Refresh comments without page reload

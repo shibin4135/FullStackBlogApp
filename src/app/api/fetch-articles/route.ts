@@ -30,9 +30,10 @@ export const GET = async () => {
           created_at: "desc",
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If isDraft field doesn't exist, fetch all articles
-      if (error?.message?.includes('Unknown argument') || error?.message?.includes('isDraft')) {
+      if (error && typeof error === 'object' && 'message' in error && 
+          (String((error as { message: unknown }).message).includes('Unknown argument') || String((error as { message: unknown }).message).includes('isDraft'))) {
         articles = await prisma.article.findMany({
           include: {
             user: {

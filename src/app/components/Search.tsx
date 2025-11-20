@@ -1,5 +1,4 @@
 "use client"
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import React, { useEffect, useState } from 'react'
 import { Article } from './ArticleClient'
@@ -70,7 +69,7 @@ const Search = ({ setFilteredArticles, setLoading }: Props) => {
                 </div>
                 {searchTerm && (
                     <p className="text-sm text-muted-foreground mt-2 text-center">
-                        Searching for: <span className="font-medium text-foreground">"{searchTerm}"</span>
+                        Searching for: <span className="font-medium text-foreground">&quot;{searchTerm}&quot;</span>
                     </p>
                 )}
             </div>

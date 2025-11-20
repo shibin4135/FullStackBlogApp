@@ -16,19 +16,24 @@ export const GET = async (req: NextRequest) => {
     }
 
     // Build query for related articles
-    const whereClause: any = {
+    type WhereClause = {
+      id: { not: string };
+      isDraft?: boolean;
+      OR?: Array<{ category?: string; tags?: { hasSome: string[] } }>;
+    };
+    const whereClause: WhereClause = {
       id: { not: articleId },
       isDraft: false,
       OR: [],
     };
 
     // Add category match
-    if (category) {
+    if (category && whereClause.OR) {
       whereClause.OR.push({ category });
     }
 
     // Add tag matches
-    if (tags.length > 0) {
+    if (tags.length > 0 && whereClause.OR) {
       whereClause.OR.push({
         tags: {
           hasSome: tags,
@@ -37,7 +42,7 @@ export const GET = async (req: NextRequest) => {
     }
 
     // If no OR conditions, use a fallback
-    if (whereClause.OR.length === 0) {
+    if (whereClause.OR && whereClause.OR.length === 0) {
       delete whereClause.OR;
     }
 

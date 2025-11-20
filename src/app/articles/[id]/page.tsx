@@ -2,7 +2,7 @@ import React from 'react'
 import { prisma } from '../../../lib/prisma'
 import Image from 'next/image'
 import { currentUser } from '@clerk/nextjs/server'
-import { Calendar, Clock, User } from 'lucide-react'
+import { Calendar, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 import LikeComponent from '@/app/components/LikeComponent'
 import Bookmarks from '@/app/components/Bookmark'
@@ -75,7 +75,7 @@ const SingleArticlePage = async ({ params }: { params: Promise<{ id: string }> }
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-20">
           <h1 className="text-3xl font-bold mb-4">Article not found</h1>
-          <p className="text-muted-foreground">The article you're looking for doesn't exist.</p>
+          <p className="text-muted-foreground">The article you&apos;re looking for doesn&apos;t exist.</p>
         </div>
       </div>
     )

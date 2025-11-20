@@ -70,7 +70,8 @@ const AnalyticsPage = () => {
         
         if (overviewRes.ok && trendingRes.ok) {
           const totalArticles = overviewData.overview.totalArticles || 1;
-          const totalBookmarks = overviewData.recentArticles.reduce((sum: number, a: any) => sum + (a._count?.bookmarks || 0), 0);
+          type ArticleWithCount = { _count?: { bookmarks?: number } };
+          const totalBookmarks = overviewData.recentArticles.reduce((sum: number, a: ArticleWithCount) => sum + (a._count?.bookmarks || 0), 0);
           
           const overview = {
             ...overviewData.overview,

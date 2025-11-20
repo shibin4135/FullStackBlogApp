@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -18,13 +17,14 @@ import {
   Bookmark, 
   BarChart3, 
   Home,
-  User,
-  Settings,
-  LogOut,
   Moon,
   Sun
 } from "lucide-react";
 import { useTheme } from "next-themes";
+
+interface WindowWithCommandPalette extends Window {
+  openCommandPalette?: () => void;
+}
 
 interface Command {
   id: string;
@@ -153,9 +153,9 @@ const CommandPalette = ({ onOpenChange }: CommandPaletteProps = {}) => {
 
   // Expose open function globally for keyboard shortcut
   useEffect(() => {
-    (window as any).openCommandPalette = () => setOpen(true);
+    (window as WindowWithCommandPalette).openCommandPalette = () => setOpen(true);
     return () => {
-      delete (window as any).openCommandPalette;
+      delete (window as WindowWithCommandPalette).openCommandPalette;
     };
   }, []);
 

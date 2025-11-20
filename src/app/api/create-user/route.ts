@@ -48,11 +48,11 @@ export const POST = async () => {
       user,
       created: true,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating/updating user:", error);
     
     // If it's a unique constraint error, user already exists - that's okay
-    if (error?.code === 'P2002') {
+    if (error && typeof error === 'object' && 'code' in error && (error as { code: string }).code === 'P2002') {
       // Try to find existing user
       try {
         const data = await currentUser();
@@ -66,7 +66,7 @@ export const POST = async () => {
             created: false,
           });
         }
-      } catch (findError) {
+      } catch {
         // Ignore find errors
       }
     }
