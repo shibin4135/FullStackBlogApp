@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 
+// Type for comment with nested replies
+type CommentWithReplies = {
+  id: string;
+  comment: string;
+  userid: string;
+  articleid: string;
+  parentId: string | null;
+  created_at: Date;
+  updated_at: Date;
+  user: {
+    name: string;
+    email: string;
+    imageUrl: string | null;
+  };
+  replies: CommentWithReplies[];
+};
+
 // Helper function to recursively fetch replies
-async function fetchReplies(parentId: string) {
+async function fetchReplies(parentId: string): Promise<CommentWithReplies[]> {
   const replies = await prisma.comment.findMany({
     where: {
       parentId: parentId,

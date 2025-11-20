@@ -36,11 +36,11 @@ const CreateArticle = () => {
     toolbar: true,
     spellcheck: true,
     language: 'en',
-    toolbarButtonSize: 'medium' as const,
+    toolbarButtonSize: 'middle' as const,
     toolbarAdaptive: false,
     theme: 'default',
     editorBackground: 'transparent',
-    defaultMode: '1', // WYSIWYG mode
+    defaultMode: 1, // WYSIWYG mode
   }), [])
 
   useEffect(() => {
